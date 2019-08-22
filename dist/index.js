@@ -41,8 +41,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var SelectSearch =
 /*#__PURE__*/
-function (_React$Component) {
-  _inherits(SelectSearch, _React$Component);
+function (_React$PureComponent) {
+  _inherits(SelectSearch, _React$PureComponent);
 
   /**
    * Component setup
@@ -159,7 +159,8 @@ function (_React$Component) {
 
     var _options = props.options,
         _value = props.value,
-        multiple = props.multiple;
+        multiple = props.multiple,
+        className = props.className;
     var stateValue = !_value && multiple ? [] : _value;
     var flattenedOptions = (0, _FlattenOptions.default)(_options);
     var _search = '';
@@ -181,20 +182,29 @@ function (_React$Component) {
       focus: false
     };
     _this.classes = {
-      container: _this.props.multiple ? "".concat(_this.props.className, " ").concat(_Bem.default.m(_this.props.className, 'multiple')) : _this.props.className,
-      search: _Bem.default.e(_this.props.className, 'search'),
-      select: _Bem.default.e(_this.props.className, 'select'),
-      options: _Bem.default.e(_this.props.className, 'options'),
-      option: _Bem.default.e(_this.props.className, 'option'),
-      row: _Bem.default.e(_this.props.className, 'row'),
-      group: _Bem.default.e(_this.props.className, 'group'),
-      groupHeader: _Bem.default.e(_this.props.className, 'group-header'),
-      out: _Bem.default.e(_this.props.className, 'out'),
-      label: _Bem.default.e(_this.props.className, 'label'),
-      focus: _this.props.multiple ? "".concat(_this.props.className, " ").concat(_Bem.default.m(_this.props.className, 'multiple focus')) : "".concat(_this.props.className, " ").concat(_Bem.default.m(_this.props.className, 'focus'))
+      container: multiple ? "".concat(className, " ").concat(_Bem.default.m(className, 'multiple')) : className,
+      search: _Bem.default.e(className, 'search'),
+      select: _Bem.default.e(className, 'select'),
+      options: _Bem.default.e(className, 'options'),
+      option: _Bem.default.e(className, 'option'),
+      row: _Bem.default.e(className, 'row'),
+      group: _Bem.default.e(className, 'group'),
+      groupHeader: _Bem.default.e(className, 'group-header'),
+      out: _Bem.default.e(className, 'out'),
+      label: _Bem.default.e(className, 'label'),
+      focus: multiple ? "".concat(className, " ").concat(_Bem.default.m(className, 'multiple focus')) : "".concat(className, " ").concat(_Bem.default.m(className, 'focus'))
     };
-    _this.classes.focus += " ".concat(_Bem.default.m(_this.props.className, 'select'));
-    _this.classes.container += " ".concat(_Bem.default.m(_this.props.className, 'select'));
+
+    if (multiple && !_this.props.search) {
+      _this.classes.container += " ".concat(_Bem.default.m(_Bem.default.e(className, 'icon'), 'disabled'));
+    }
+
+    if (!_this.props.search) {
+      _this.classes.focus += " ".concat(_Bem.default.m(_Bem.default.e(className, 'icon'), 'disabled'));
+    }
+
+    _this.classes.container += " ".concat(_Bem.default.m(className, 'select'));
+    _this.classes.focus += " ".concat(_Bem.default.m(className, 'select'));
     _this.container = _react.default.createRef();
     _this.selectOptions = _react.default.createRef();
     _this.select = _react.default.createRef();
@@ -411,9 +421,7 @@ function (_React$Component) {
   }, {
     key: "chooseOption",
     value: function chooseOption(value) {
-      var _this3 = this;
-
-      var currentValue = this.state.value;
+      var currentValue = this.state.value.slice();
       var option;
       var search;
 
@@ -434,7 +442,8 @@ function (_React$Component) {
           currentValue = [];
         }
 
-        currentValue.push(option.value);
+        var currentIndex = currentValue.indexOf(option.value);
+        currentIndex > -1 ? currentValue.splice(currentIndex, 1) : currentValue.push(option.value);
         search = '';
       } else {
         currentValue = option.value;
@@ -450,11 +459,8 @@ function (_React$Component) {
         highlighted: highlighted,
         focus: this.props.multiple
       });
-      setTimeout(function () {
-        var publishOption = _this3.publishOption(currentValue);
-
-        _this3.props.onChange.call(null, publishOption, _this3.state, _this3.props);
-      }, 50);
+      var publishOption = this.publishOption(currentValue);
+      this.props.onChange.call(null, publishOption, this.state, this.props);
 
       if (this.props.search && !this.props.multiple) {
         this.search.current.blur();
@@ -463,14 +469,14 @@ function (_React$Component) {
   }, {
     key: "removeOption",
     value: function removeOption(value) {
-      var _this4 = this;
+      var _this3 = this;
 
       if (!value) {
         return false;
       }
 
       var option = this.findByValue(this.state.defaultOptions, value);
-      var optionValue = this.state.value;
+      var optionValue = this.state.value.slice();
 
       if (!option || optionValue.indexOf(option.value) < 0) {
         return false;
@@ -482,7 +488,7 @@ function (_React$Component) {
         search: ''
       });
       setTimeout(function () {
-        _this4.props.onChange.call(null, _this4.publishOption(optionValue), _this4.state, _this4.props);
+        _this3.props.onChange.call(null, _this3.publishOption(optionValue), _this3.state, _this3.props);
       }, 50);
       return true;
     }
@@ -524,7 +530,7 @@ function (_React$Component) {
   }, {
     key: "renderOption",
     value: function renderOption(option, stateValue, multiple) {
-      var _this5 = this;
+      var _this4 = this;
 
       var elementVal = option.value;
       var element = null;
@@ -545,7 +551,7 @@ function (_React$Component) {
             role: "menuitem",
             className: className,
             onClick: function onClick() {
-              return _this5.chooseOption(option.value);
+              return _this4.chooseOption(option.value);
             },
             key: "".concat(option.value, "-option"),
             "data-value": option.value
@@ -555,7 +561,7 @@ function (_React$Component) {
             role: "menuitem",
             className: className,
             onClick: function onClick() {
-              return _this5.removeOption(option.value);
+              return _this4.removeOption(option.value);
             },
             key: "".concat(option.value, "-option"),
             "data-value": option.value
@@ -573,7 +579,7 @@ function (_React$Component) {
           role: "menuitem",
           className: className,
           onClick: function onClick() {
-            return _this5.chooseOption(option.value);
+            return _this4.chooseOption(option.value);
           },
           key: "".concat(option.value, "-option"),
           "data-value": option.value
@@ -585,7 +591,7 @@ function (_React$Component) {
   }, {
     key: "renderOptions",
     value: function renderOptions() {
-      var _this6 = this;
+      var _this5 = this;
 
       var select = null;
       var selectStyle = {};
@@ -603,20 +609,20 @@ function (_React$Component) {
             if ({}.hasOwnProperty.call(option, 'type') && option.type === 'group') {
               var subOptions = [];
               option.items.forEach(function (groupOption) {
-                subOptions.push(_this6.renderOption(groupOption, stateValue, multiple));
+                subOptions.push(_this5.renderOption(groupOption, stateValue, multiple));
               });
               options.push(_react.default.createElement("li", {
-                className: _this6.classes.row,
+                className: _this5.classes.row,
                 key: option.groupId
               }, _react.default.createElement("div", {
-                className: _this6.classes.group
+                className: _this5.classes.group
               }, _react.default.createElement("div", {
-                className: _this6.classes.groupHeader
-              }, _this6.props.renderGroupHeader(option.name)), _react.default.createElement("ul", {
-                className: _this6.classes.options
+                className: _this5.classes.groupHeader
+              }, _this5.props.renderGroupHeader(option.name)), _react.default.createElement("ul", {
+                className: _this5.classes.options
               }, subOptions))));
             } else {
-              options.push(_this6.renderOption(option, stateValue, multiple));
+              options.push(_this5.renderOption(option, stateValue, multiple));
             }
           });
 
@@ -648,16 +654,16 @@ function (_React$Component) {
   }, {
     key: "renderOutElement",
     value: function renderOutElement() {
-      var _this7 = this;
+      var _this6 = this;
 
       var option = null;
       var outElement;
 
       if (this.props.multiple) {
-        if (this.state.value) {
+        if (Object.prototype.toString.call(this.state.value) == '[object Array]' && this.state.value.length) {
           var finalValueOptions = [];
           this.state.value.forEach(function (value) {
-            option = _this7.findByValue(_this7.state.defaultOptions, value);
+            option = _this6.findByValue(_this6.state.defaultOptions, value);
             finalValueOptions.push(_react.default.createElement("option", {
               key: option.value,
               value: option.value
@@ -724,6 +730,10 @@ function (_React$Component) {
           placeholder: this.props.placeholder
         });
       } else {
+        if (this.props.multiple) {
+          return;
+        }
+
         var option;
         var labelValue;
         var labelClassName;
@@ -764,7 +774,7 @@ function (_React$Component) {
   }]);
 
   return SelectSearch;
-}(_react.default.Component);
+}(_react.default.PureComponent);
 
 _defineProperty(SelectSearch, "defaultProps", {
   className: 'select-search-box',

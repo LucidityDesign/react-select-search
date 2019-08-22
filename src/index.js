@@ -380,7 +380,7 @@ class SelectSearch extends React.PureComponent {
             if (!currentValue) {
                 currentValue = [];
             }
-            
+
             const currentIndex = currentValue.indexOf(option.value);
             currentIndex > -1 ? currentValue.splice(currentIndex, 1) : currentValue.push(option.value);
 
@@ -401,10 +401,8 @@ class SelectSearch extends React.PureComponent {
             focus: this.props.multiple,
         });
 
-        setTimeout(() => {
-            const publishOption = this.publishOption(currentValue);
-            this.props.onChange.call(null, publishOption, this.state, this.props);
-        }, 50);
+        const publishOption = this.publishOption(currentValue);
+        this.props.onChange.call(null, publishOption, this.state, this.props);
 
         if (this.props.search && !this.props.multiple) {
             this.search.current.blur();
